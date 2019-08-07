@@ -22,6 +22,7 @@ tweets_file.write('screen_name,tweet,favorite_count,retweet_count,reply_to,n_use
 for root, dirs, files in os.walk(rootdir):
     for name in files:
         if name.endswith((".json")):
+            n_tweets = 0
             full_path = os.path.join(root, name)
             with open(full_path) as f:
                 data = json.load(f)
@@ -45,8 +46,7 @@ for root, dirs, files in os.walk(rootdir):
                 str(len(t['entities']['user_mentions'])) + ',' + str(len(t['entities']['hashtags'])) + ',' + str(len(t['entities']['urls'])) + ',"' + 
                 user_mentioned + '","' + hashtags + '"' '\n')
             print('file_name: ', name, '| tweets:', len(tweets))
-            print('users:', len(users))
-            break        
+            print('users:', len(users), '| tweets:', n_tweets)  
 
 file.close()
 tweets_file.close()
