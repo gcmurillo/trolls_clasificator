@@ -58,7 +58,8 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     response_json = json.loads(response.text)
     translation = response_json["responseData"]["translatedText"]
     translator_name = "MemoryNet Translation Service"
-    #polarity_scores method of SentimentIntensityAnalyzer 
+    
+    # polarity_scores method of SentimentIntensityAnalyzer 
     # oject gives a sentiment dictionary. 
     # which contains pos, neg, neu, and compound scores. 
     sentiment_dict = sid_obj.polarity_scores(translation) 
