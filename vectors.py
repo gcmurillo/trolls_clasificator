@@ -4,6 +4,7 @@ import credentials
 from sentic import SenticPhrase
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 import requests, json
+from dateutil import tz
 
 # Tweepy api credentials config
 consumer_key = credentials.consumer_key
@@ -79,7 +80,26 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
         print("Negative") 
   
     else : 
-        print("Neutral") 
+        print("Neutral")
+
+    # Time analysis
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz('America/New_York')
+    utc = status.created_at
+    utc = utc.replace(tzinfo=from_zone)
+    central = utc.astimezone(to_zone)
+    print("day: ", central.weekday())
+    hour = central.hour
+    print("interval:", end=" ")
+    if 0 <= hour < 6:
+        print(1)
+    elif 6 <= hour < 12:
+        print(2)
+    elif 12 <= hour < 18:
+        print(3)
+    elif 18 <= hour < 24:
+        print(4)
+    
     print("***********")
     if counter > 10:
         break
