@@ -88,7 +88,6 @@ def time_analysis(date):
     central = utc.astimezone(to_zone)
     day = central.weekday()
     hour = central.hour
-    print("interval:", end=" ")
     if 0 <= hour < 6:
         return day, 0
     elif 6 <= hour < 12:
@@ -108,6 +107,15 @@ users_favorited = []
 users_replied = []
 parrot_total = [0,0,0,0,0,0]  # "fear", "anger", "sadness", "love", "surprise", "joy"
 vader_total = [0,0,0]  # positive, negative, neutral
+time_frecency = {
+    0: [0,0,0,0],
+    1: [0,0,0,0],
+    2: [0,0,0,0],
+    3: [0,0,0,0],
+    4: [0,0,0,0],
+    5: [0,0,0,0],
+    6: [0,0,0,0]
+}
 for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items(10):
     print(status.full_text) 
     text = status.full_text
@@ -123,7 +131,8 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     vader_total[2] += 1 if vader_value == 0 else 0
 
     # Time analysis
-    time_analysis(status.created_at)  
+    day, inter = time_analysis(status.created_at)  
+    time_frecency[day][inter] += 1
 
     print("reply" if status.in_reply_to_screen_name else "no reply")
     if status.in_reply_to_screen_name:
@@ -143,5 +152,6 @@ print("retweets:", retweets)
 print(set(users_retweeted))
 print(parrot_total)
 print(vader_total)
+print(time_frecency)
 # print("favorites", len(tw.Cursor(api.favorites, screen_name="Fabrici85278757")))
     
