@@ -1,28 +1,16 @@
 import tweepy as tw
+import credentials
 
-consumer_key = ""
-consumer_secret = ""
+consumer_key = credentials.consumer_key
+consumer_secret = credentials.consumer_secret
 
-access_token = ""
-access_token_secret = ""
+access_token = credentials.access_token
+access_token_secret = credentials.access_token_secret
 
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
-search_words = "Rafael Correa Mashi"
-date_since = "2018-11-16"
-
-tweets = tw.Cursor(api.search,
-              q=search_words,
-              since=date_since).items(10)
-
-# Iterate on tweets
-for tweet in tweets:
-    print('******')
-    user=tweet.user.id
-    print("username:", str(tweet.user.screen_name).encode('utf-8'))
-    print("followers:", int(str(tweet.user.followers_count).encode('utf-8')))
-    print("friends:", int(str(tweet.user.friends_count).encode('utf-8')))
-    print(str(tweet.text).encode('utf-8'))
-    print('******')
+# Getting timeline for user
+for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items():
+    print(status.full_text)

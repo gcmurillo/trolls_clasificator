@@ -105,3 +105,6 @@ venv.bak/
 
 # visual studio code temps
 .vscode/
+
+# twitter credentials file 
+credentials.py
