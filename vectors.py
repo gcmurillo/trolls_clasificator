@@ -5,6 +5,7 @@ from sentic import SenticPhrase
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 import requests, json
 from dateutil import tz
+import numpy as np
 
 # Tweepy api credentials config
 consumer_key = credentials.consumer_key
@@ -105,15 +106,22 @@ retweets = 0
 users_retweeted = []
 users_favorited = []
 users_replied = []
-for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items(100):
+parrot_total = [0,0,0,0,0,0]  # "fear", "anger", "sadness", "love", "surprise", "joy"
+vader_total = [0,0,0]  # positive, negative, neutral
+for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items(10):
     print(status.full_text) 
     text = status.full_text
     parrot = parrot_emotion_model(text)
-    print(parrot)
+    # Adding to parrot_total list
+    parrot_sum = np.array([parrot_total, list(parrot.values())])
+    parrot_total = parrot_sum.sum(axis=0)
 
     # VADER SENTIMENTAL ANALYSIS (positive & negative)
-    vader_sentiment(text)
-  
+    vader_value = vader_sentiment(text)
+    vader_total[0] += 1 if vader_value == 1 else 0
+    vader_total[1] += 1 if vader_value == -1 else 0
+    vader_total[2] += 1 if vader_value == 0 else 0
+
     # Time analysis
     time_analysis(status.created_at)  
 
@@ -133,5 +141,7 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
 print("replies:", replies)
 print("retweets:", retweets)
 print(set(users_retweeted))
+print(parrot_total)
+print(vader_total)
 # print("favorites", len(tw.Cursor(api.favorites, screen_name="Fabrici85278757")))
     
