@@ -98,10 +98,10 @@ def time_analysis(date):
         return day, 3
 
 
-# Getting timeline for user
 counter = 0
 replies = 0
 retweets = 0
+favorites = 0
 users_retweeted = []
 users_favorited = []
 users_replied = []
@@ -116,7 +116,10 @@ time_frecency = {
     5: [0,0,0,0],
     6: [0,0,0,0]
 }
-for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items(10):
+user = "Fabrici85278757"
+
+# Getting timeline for user
+for status in tw.Cursor(api.user_timeline, screen_name=user, tweet_mode="extended").items(10):
     print(status.full_text) 
     text = status.full_text
     parrot = parrot_emotion_model(text)
@@ -147,9 +150,16 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     # in_reply_to_screen_name = None -> no reply
     print("***********")
 
+for favorite in tw.Cursor(api.favorites, screen_name=user).items(10):
+    favorites += 1
+    users_favorited.append(favorite.user.screen_name)
+
+
+
 print("replies:", replies)
 print("retweets:", retweets)
 print(set(users_retweeted))
+print(set(users_favorited))
 print(parrot_total)
 print(vader_total)
 print(time_frecency)
