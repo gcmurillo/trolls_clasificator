@@ -77,6 +77,9 @@ def vader_sentiment(text):
 
 
 def time_analysis(date):
+    """
+    Return weekday (0-6) and interval (0-3)
+    """
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('America/New_York')
     utc = date
@@ -94,22 +97,41 @@ def time_analysis(date):
     elif 18 <= hour < 24:
         return day, 3
 
+
 # Getting timeline for user
 counter = 0
-for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items():
-    print(status.full_text)
+replies = 0
+retweets = 0
+users_retweeted = []
+users_favorited = []
+users_replied = []
+for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items(100):
+    print(status.full_text) 
     text = status.full_text
-    
     parrot = parrot_emotion_model(text)
+    print(parrot)
 
     # VADER SENTIMENTAL ANALYSIS (positive & negative)
     vader_sentiment(text)
   
     # Time analysis
     time_analysis(status.created_at)  
+
+    print("reply" if status.in_reply_to_screen_name else "no reply")
+    if status.in_reply_to_screen_name:
+        replies +=1
+        users_replied.append(status.in_reply_to_screen_name)
+
+    print("retweeted" if status.retweeted else "no retweeted")
+    if hasattr(status, 'retweeted_status'):
+        retweets += 1
+        users_retweeted.append(status.retweeted_status.user.screen_name)
+
+    # in_reply_to_screen_name = None -> no reply
     print("***********")
-    if counter > 10:
-        break
-    else: 
-        counter += 1
+
+print("replies:", replies)
+print("retweets:", retweets)
+print(set(users_retweeted))
+# print("favorites", len(tw.Cursor(api.favorites, screen_name="Fabrici85278757")))
     
