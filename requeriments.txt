@@ -72,6 +72,7 @@ traitlets==4.3.2
 tweepy==3.7.0
 Twisted==19.7.0
 urllib3==1.25.2
+vaderSentiment==3.2.1
 w3lib==1.21.0
 wcwidth==0.1.7
 webencodings==0.5.1
