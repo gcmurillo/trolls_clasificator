@@ -27,7 +27,22 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     print(status.full_text)
     text = status.full_text
     sp = SenticPhrase(text, "es")
-    print(sp.info(text))
+    
+    # Parrot emotion model
+    if sp.get_sentics():
+        sentic_dict = sp.get_sentics()
+        if -0.3 > sentic_dict["sensitivity"] >= -0.6:  # fear    
+            print("Fear")
+        if 0.6 >= sentic_dict["sensitivity"] > 0.3:  # Anger
+            print("Anger")
+        if -0.3 > sentic_dict["pleasantness"] >= -0.6:  # sadness
+            print("Sadness")
+        if sentic_dict["pleasantness"] > 0 and sentic_dict["aptitude"] > 0: # Love
+            print("Love")
+        if -0.3 > sentic_dict["attention"] >= -0.6:  # surprise
+            print("Surprise")
+        if 0.6 >= sentic_dict["pleasantness"] > 0.3:  # Joy
+            print("Joy")
     
     # VADER SENTIMENTAL ANALYSIS (positive & negative)
     # please note usage limits for My Memory Translation Service:   http://mymemory.translated.net/doc/usagelimits.php
