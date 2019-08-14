@@ -17,35 +17,29 @@ auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
-# Vader Sentiment analyzer and languages for translator
-sid_obj = SentimentIntensityAnalyzer()
-to_lang="en"  
-from_lang="es"
-
-# Getting timeline for user
-counter = 0
-for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items():
-    print(status.full_text)
-    text = status.full_text
+def parrot_emotion_model(text):
     sp = SenticPhrase(text, "es")
-    
+    emotions = {"fear": 0, "anger": 0, "sadness": 0, "love": 0, "surprise": 0, "joy": 0}
     # Parrot emotion model
     if sp.get_sentics():
         sentic_dict = sp.get_sentics()
-        if -0.3 > sentic_dict["sensitivity"] >= -0.6:  # fear    
-            print("Fear")
-        if 0.6 >= sentic_dict["sensitivity"] > 0.3:  # Anger
-            print("Anger")
-        if -0.3 > sentic_dict["pleasantness"] >= -0.6:  # sadness
-            print("Sadness")
-        if sentic_dict["pleasantness"] > 0 and sentic_dict["aptitude"] > 0: # Love
-            print("Love")
-        if -0.3 > sentic_dict["attention"] >= -0.6:  # surprise
-            print("Surprise")
-        if 0.6 >= sentic_dict["pleasantness"] > 0.3:  # Joy
-            print("Joy")
-    
-    # VADER SENTIMENTAL ANALYSIS (positive & negative)
+        emotions["fear"] += 1 if -0.3 > sentic_dict["sensitivity"] >= -0.6 else 0
+        emotions["anger"] += 1 if 0.6 >= sentic_dict["sensitivity"] > 0.3 else 0
+        emotions["sadness"] +=1  if -0.3 > sentic_dict["pleasantness"] >= -0.6 else 0
+        emotions["love"] +=1  if sentic_dict["pleasantness"] > 0 and sentic_dict["aptitude"] > 0 else 0
+        emotions["surprise"] += 1 if -0.3 > sentic_dict["attention"] >= -0.6 else 0
+        emotions["joy"] += 1 if 0.6 >= sentic_dict["pleasantness"] > 0.3 else 0
+    return emotions
+
+
+def vader_sentiment(text):
+    """
+        Return 1 if positive, -1 to negative and 0 to neutral
+    """
+    # Vader Sentiment analyzer and languages for translator
+    sid_obj = SentimentIntensityAnalyzer()
+    to_lang="en"  
+    from_lang="es"
     # please note usage limits for My Memory Translation Service:   http://mymemory.translated.net/doc/usagelimits.php
     # using   MY MEMORY NET   http://mymemory.translated.net
     api_url = "http://mymemory.translated.net/api/get?q={}&langpair={}|{}".format(text, from_lang, to_lang)
@@ -70,18 +64,30 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     print("sentence was rated as ", sentiment_dict['neu']*100, "% Neutral") 
     print("sentence was rated as ", sentiment_dict['pos']*100, "% Positive") 
   
-    print("Sentence Overall Rated As", end = " ") 
-  
-    # decide sentiment as positive, negative and neutral 
+    print("Sentence Overall Rated As", end = " ")
     if sentiment_dict['compound'] >= 0.05 : 
         print("Positive") 
-  
+        return 1
     elif sentiment_dict['compound'] <= - 0.05 : 
         print("Negative") 
-  
+        return -1
     else : 
         print("Neutral")
+        return 0
 
+
+# Getting timeline for user
+counter = 0
+for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items():
+    print(status.full_text)
+    text = status.full_text
+    
+    parrot = parrot_emotion_model(text)
+
+    # VADER SENTIMENTAL ANALYSIS (positive & negative)
+    vader_sentiment(text)
+  
+    
     # Time analysis
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('America/New_York')
