@@ -76,6 +76,24 @@ def vader_sentiment(text):
         return 0
 
 
+def time_analysis(date):
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz('America/New_York')
+    utc = date
+    utc = utc.replace(tzinfo=from_zone)
+    central = utc.astimezone(to_zone)
+    day = central.weekday()
+    hour = central.hour
+    print("interval:", end=" ")
+    if 0 <= hour < 6:
+        return day, 0
+    elif 6 <= hour < 12:
+        return day, 1
+    elif 12 <= hour < 18:
+        return day, 2
+    elif 18 <= hour < 24:
+        return day, 3
+
 # Getting timeline for user
 counter = 0
 for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_mode="extended").items():
@@ -87,25 +105,8 @@ for status in tw.Cursor(api.user_timeline, screen_name='Fabrici85278757', tweet_
     # VADER SENTIMENTAL ANALYSIS (positive & negative)
     vader_sentiment(text)
   
-    
     # Time analysis
-    from_zone = tz.gettz('UTC')
-    to_zone = tz.gettz('America/New_York')
-    utc = status.created_at
-    utc = utc.replace(tzinfo=from_zone)
-    central = utc.astimezone(to_zone)
-    print("day: ", central.weekday())
-    hour = central.hour
-    print("interval:", end=" ")
-    if 0 <= hour < 6:
-        print(1)
-    elif 6 <= hour < 12:
-        print(2)
-    elif 12 <= hour < 18:
-        print(3)
-    elif 18 <= hour < 24:
-        print(4)
-    
+    time_analysis(status.created_at)  
     print("***********")
     if counter > 10:
         break
