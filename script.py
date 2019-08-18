@@ -62,10 +62,10 @@ if users_filename:
                         content = status.full_text
                         followers = status.user.followers_count
                         following = status.user.friends_count
-                        retweeted = status.retweeted
+                        retweeted = True if hasattr(status, 'retweeted_status') else False
                         created_at = status.created_at
                         is_troll = troll_file
-                        line = content.replace(',', ';').strip("\n") + "," + str(followers) + "," + str(followers) + "," + str(retweeted) + "," + str(created_at) + "," + str(is_troll) + "\n"
+                        line = content.replace(',', ';').replace('\n', ' ') + "," + str(followers) + "," + str(following) + "," + str(retweeted) + "," + str(created_at) + "," + str(is_troll) + "\n"
                         output_file.write(line)
                     print("End user: ", user)
                 except:
