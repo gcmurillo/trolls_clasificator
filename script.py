@@ -50,6 +50,7 @@ if args.troll != "n":
     troll_file = True
 
 # option to create dataset
+n_tweets = 0
 users_filename = args.userfile
 if users_filename:
     header = "content,followers,following,retweet,created_at,troll\n"
@@ -58,7 +59,7 @@ if users_filename:
             output_file.write(header)
             for user in f:
                 try: 
-                    for status in tweepy.Cursor(api.user_timeline, screen_name=user.strip("\n"), tweet_mode="extended").items(10):
+                    for status in tweepy.Cursor(api.user_timeline, screen_name=user.strip("\n"), tweet_mode="extended").items():
                         content = status.full_text
                         followers = status.user.followers_count
                         following = status.user.friends_count
@@ -67,6 +68,8 @@ if users_filename:
                         is_troll = troll_file
                         line = content.replace(',', ';').replace('\n', ' ') + "," + str(followers) + "," + str(following) + "," + str(retweeted) + "," + str(created_at) + "," + str(is_troll) + "\n"
                         output_file.write(line)
+                        n_tweets += 1
+                        print("Tweets: ", n_tweets)
                     print("End user: ", user)
                 except:
                     print("Error:", user)
