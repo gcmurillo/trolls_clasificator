@@ -146,8 +146,8 @@ print("Training matrix dimensions: ", X_train_combined.shape)
 # Training the model - Logistic Regresion
 print("Logistic")
 logic_model = linear_model.LogisticRegression().fit(X_train_combined, y_train['troll'])
-print("Training Score:", logic_model.score(X_train_combined, y_train['troll'])
-print("Testing Score:"l, ogic_model.score(X_test_combined, y_test['troll']))
+print("Training Score:", logic_model.score(X_train_combined, y_train['troll']))
+print("Testing Score:", logic_model.score(X_test_combined, y_test['troll']))
 
 # Creating Neural Net
 from keras.models import Sequential
