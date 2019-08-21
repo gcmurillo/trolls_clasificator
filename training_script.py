@@ -4,6 +4,7 @@
 # import stuff
 print("Importing stuff --------")
 import pandas as pd
+
 import numpy as np
 from sklearn import feature_extraction
 import nltk
@@ -116,7 +117,6 @@ col_to_std = ['followers', 'following']
 X_train[col_to_std]=scaler_training.transform(X_train[col_to_std])
 X_test[col_to_std]=scaler_testing.transform(X_test[col_to_std])
 
-
 print(X_train[col_to_std].head(), X_test[col_to_std])
 
 # binarize outputs
@@ -142,6 +142,7 @@ X_train_combined = concatenate_features(X_train_tok, X_train)
 X_test_combined = concatenate_features(X_test_tok, X_test)
 
 print("Training matrix dimensions: ", X_train_combined.shape)
+
 
 # Training the model - Logistic Regresion
 print("Logistic")
@@ -188,4 +189,40 @@ accuracy = 100*score[1]
 print('Precisión durante la prueba: %.4f%%' % accuracy)
 
 
+print('DEMO')
+import tweepy
+consumer_key = "fxGZYoJGBTtK8H2E8WO4eKdis"
+consumer_secret = "Q3YY6ZJbURAopG7TmtY430XkfsUUa5qykeJhEfSNNqHEs1aP6E"
+ 
+access_token = "227449172-qnfQfv9Rob8XaYgbfKyz1UccdHhwLZPCBa1EYsYU"
+access_token_secret = "Uldgr5rzvuGaC77RVafaG86UlijFDrsebOpHrHYVD7TKk"
 
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth, wait_on_rate_limit=True)
+
+tweets = {
+    "Amparit65838995": 1119006511399952384,
+    "geanmurillo": 1119488493053521921
+}
+
+for user, id in tweets.items():
+    print(user)
+    mini_df = {}
+    tweet = api.get_status(id)
+    mini_df['content'] = [str(tweet.text)]
+    print("Tweet:", mini_df['content'])
+    mini_df['followers'] = [tweet.user.followers_count]
+    mini_df['following'] = [tweet.user.friends_count]
+    mini_df['retweet'] = [1 if hasattr(tweet, 'retweeted_status') else 0]
+    mini_df = pd.DataFrame.from_dict(mini_df)
+    print("Getting matrix of tokenized words")
+    tweet_tok=tokenizer.transform(mini_df['content']) 
+    mini_df[col_to_std]=scaler_training.transform(mini_df[col_to_std])  # normalize followers/following
+    mini_df_combined = concatenate_features(tweet_tok, mini_df)
+    mini_df_numpy_vector = mini_df_combined.todense()
+    pred = model.predict(mini_df_numpy_vector)
+    # Prepare and send the response.
+    digit = np.argmax(pred)
+    print("Prediction:", digit)
+    print(pred)
