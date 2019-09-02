@@ -4,27 +4,6 @@ import tweepy
 import credentials
 from dateutil import tz
 
-# Define functions
-def time_analysis(date):
-    """
-    Return weekday (0-6) and interval (0-3)
-    """
-    from_zone = tz.gettz('UTC')
-    to_zone = tz.gettz('America/New_York')
-    utc = date
-    utc = utc.replace(tzinfo=from_zone)
-    central = utc.astimezone(to_zone)
-    day = central.weekday()
-    hour = central.hour
-    if 0 <= hour < 6:
-        return day, 0
-    elif 6 <= hour < 12:
-        return day, 1
-    elif 12 <= hour < 18:
-        return day, 2
-    elif 18 <= hour < 24:
-        return day, 3
-
 # Tweepy api credentials config
 consumer_key = credentials.consumer_key
 consumer_secret = credentials.consumer_secret
@@ -53,20 +32,27 @@ if args.troll != "n":
 n_tweets = 0
 users_filename = args.userfile
 if users_filename:
-    header = "content,followers,following,retweet,created_at,troll\n"
+    header = "author,content,followers,following,retweet,created_at,reply_to,n_mentioned,n_hashtags,user_mentioned,hashtags,troll\n"
     with open(users_filename) as f:
         with open("dataset.csv", "w", encoding='utf-8') as output_file:
             output_file.write(header)
             for user in f:
-                try: 
+                try:
                     for status in tweepy.Cursor(api.user_timeline, screen_name=user.strip("\n"), tweet_mode="extended").items():
+                        author=user.strip("\n")
                         content = status.full_text
                         followers = status.user.followers_count
                         following = status.user.friends_count
                         retweeted = True if hasattr(status, 'retweeted_status') else False
                         created_at = status.created_at
+                        reply = status.in_reply_to_screen_name if hasattr(status, 'in_reply_to_screen_name') is not None else ''
+                        user_mentioned = ';'.join(i['screen_name'] for i in status.entities['user_mentions'])
+                        hashtags = ';'.join(i['text'] for i in status.entities['hashtags'])
                         is_troll = troll_file
-                        line = content.replace(',', ';').replace('\n', ' ') + "," + str(followers) + "," + str(following) + "," + str(retweeted) + "," + str(created_at) + "," + str(is_troll) + "\n"
+                        reply = '' if reply == None else reply
+                        line = author + ',' + content.replace(',', ';').replace('\n', ' ') + "," + str(followers) + "," + str(following) + "," + str(retweeted) + "," + str(created_at) + "," \
+                            + reply + ',' +  str(len(status.entities['user_mentions'])) + ',' + str(len(status.entities['hashtags'])) + \
+                            ',"' + user_mentioned + '","' + hashtags + '",' + str(is_troll) + "\n"
                         output_file.write(line)
                         n_tweets += 1
                         print("Tweets: ", n_tweets)
