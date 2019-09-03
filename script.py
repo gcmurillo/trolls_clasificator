@@ -55,7 +55,7 @@ if users_filename:
                             ',"' + user_mentioned + '","' + hashtags + '",' + str(is_troll) + "\n"
                         output_file.write(line)
                         n_tweets += 1
-                        print("Tweets: ", n_tweets)
+                        #print("Tweets: ", n_tweets)
                     print("End user: ", user)
                 except:
                     print("Error:", user)
